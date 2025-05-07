@@ -18,7 +18,7 @@ jobs:
       
     - name: Build and start containers
       run: |
-        docker-compose up -d --build
+        docker compose up -d --build
         
     - name: Wait for services to be ready
       run: |
@@ -26,13 +26,13 @@ jobs:
         
     - name: Load test data
       run: |
-        docker-compose exec -T web python manage.py loaddata test_data.json
+        docker compose exec -T web python manage.py loaddata test_data.json
         
     - name: Run tests
       run: |
-        docker-compose exec -T web python manage.py test
+        docker compose exec -T web python manage.py test
         
     - name: Cleanup
       if: always()
       run: |
-        docker-compose down -v 
+        docker compose down -v 
