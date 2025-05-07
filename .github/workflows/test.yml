@@ -1,0 +1,44 @@
+name: Test Application
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Build and start containers
+      run: |
+        docker compose up -d --build
+        
+    - name: Wait for services to be ready
+      run: |
+        sleep 10  # Give services time to start
+        
+    - name: Initialize database
+      run: |
+        docker compose exec -T web python manage.py db upgrade
+        docker compose exec -T web python manage.py db init
+        docker compose exec -T web python manage.py db migrate
+        
+    - name: Load test data
+      run: |
+        docker compose exec -T web python manage.py loaddata test_data.json
+        
+    - name: Run tests
+      run: |
+        docker compose exec -T web python manage.py test
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose down -v 
