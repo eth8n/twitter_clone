@@ -24,12 +24,6 @@ jobs:
       run: |
         sleep 10  # Give services time to start
         
-    - name: Initialize database
-      run: |
-        docker compose exec -T web python manage.py db upgrade
-        docker compose exec -T web python manage.py db init
-        docker compose exec -T web python manage.py db migrate
-        
     - name: Load test data
       run: |
         docker compose exec -T web python manage.py loaddata test_data.json
